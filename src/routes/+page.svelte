@@ -12,6 +12,10 @@
 	}
 </script>
 
+<svelte:head>
+	<title>WeWatch</title>
+</svelte:head>
+
 <h1>WeWatch</h1>
 
 {#if form && !form.success}
@@ -21,10 +25,3 @@
 <form method="POST" action="?/create" use:enhance>
 	<button type="submit" class="btn btn-success">Create Room</button>
 </form>
-
-<!-- <div style="width:50%">
-	<vm-player>
-		<vm-youtube video-id="DyTCOwB0DVw" />
-		<vm-default-ui />
-	</vm-player>
-</div> -->
