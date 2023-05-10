@@ -6,3 +6,8 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model Room {
+  id        String   @id @unique
+  createdAt DateTime @default(now())
+}
