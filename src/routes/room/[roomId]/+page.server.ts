@@ -8,4 +8,10 @@ export const load = (async ({ params }) => {
 	if (!room) {
 		throw redirect(302, '/');
 	}
+	const messages = await db.message.findMany({ where: { roomId: roomId } });
+	return {
+		messages: messages.map((message) => {
+			return { createdAt: message.createdAt, value: message.value };
+		})
+	};
 }) satisfies PageServerLoad;

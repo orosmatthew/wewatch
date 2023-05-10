@@ -8,6 +8,15 @@ datasource db {
 }
 
 model Room {
-  id        String   @id @unique
+  id        String    @id @unique
+  createdAt DateTime  @default(now())
+  messages  Message[]
+}
+
+model Message {
+  id        BigInt   @id @default(autoincrement())
   createdAt DateTime @default(now())
+  value     String
+  room      Room     @relation(fields: [roomId], references: [id])
+  roomId    String
 }

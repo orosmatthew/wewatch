@@ -29,7 +29,7 @@ export function socketUrl(): string {
 	}
 }
 
-const io = new SocketServer(socketPort);
+const io = new SocketServer(socketPort, { cors: { origin: '*' } });
 
 handleSocketsServer(io);
 

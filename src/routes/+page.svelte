@@ -1,15 +1,9 @@
 <script lang="ts">
-	import { browser } from '$app/environment';
 	import { enhance } from '$app/forms';
-	import { defineCustomElements } from '@vime/core';
-	import '@vime/core/themes/default.css';
+
 	import type { Actions } from './$types';
 
 	export let form: Actions;
-
-	if (browser) {
-		defineCustomElements();
-	}
 </script>
 
 <svelte:head>
