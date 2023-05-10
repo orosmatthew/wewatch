@@ -10,7 +10,7 @@ export const actions = {
 		for (let i = 0; i < 100; i++) {
 			const roomId = generateRoomId();
 			try {
-				createdRoom = await db.room.create({ data: { id: roomId } });
+				createdRoom = await db.room.create({ data: { id: roomId, videoId: 'mN0zPOpADL4' } });
 				break;
 			} catch {
 				continue;

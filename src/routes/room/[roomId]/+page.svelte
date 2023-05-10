@@ -32,6 +32,46 @@
 			chats.push(message);
 			chats = chats;
 		});
+		socket.on('play', (videoId: string) => {
+			playYoutube(videoId);
+		});
+	}
+
+	function playYoutube(id: string) {
+		const vmPlayer = document.querySelector('vm-player') as HTMLVmPlayerElement;
+		const vmYoutube = document.querySelector('vm-youtube') as HTMLVmYoutubeElement;
+		vmPlayer.removeChild(vmYoutube);
+		const newVmYoutube = document.createElement('vm-youtube');
+		newVmYoutube.videoId = id;
+		vmPlayer.appendChild(newVmYoutube);
+	}
+
+	function onPlayUrl() {
+		const urlInput = document.getElementById('vid_url') as HTMLInputElement | undefined;
+		if (!urlInput) {
+			return;
+		}
+		const url = new URL(urlInput.value);
+		if (
+			url.hostname === 'youtube.com' ||
+			url.hostname === 'www.youtube.com' ||
+			url.hostname === 'm.youtube.com'
+		) {
+			const params = new URLSearchParams(url.search);
+			const videoId = params.get('v');
+			if (videoId !== null) {
+				if (socket) {
+					socket.emit('play', { videoId: videoId, room: $page.params.roomId });
+				}
+			}
+		} else if (url.hostname === 'youtu.be') {
+			const videoId = url.toString().split('/').pop()?.split('?').at(0);
+			if (videoId !== undefined) {
+				if (socket) {
+					socket.emit('play', { videoId: videoId, room: $page.params.roomId });
+				}
+			}
+		}
 	}
 
 	let usernameInput: HTMLInputElement | undefined;
@@ -62,56 +102,73 @@
 	<title>Room</title>
 </svelte:head>
 
-<!-- <div style="width:50%">
-	<vm-player>
-		<vm-youtube video-id="DyTCOwB0DVw" />
-		<vm-default-ui />
-	</vm-player>
-</div> -->
-
-<div class="chat-container">
-	{#if socket === undefined}
-		<div class="alert alert-secondary">Connecting to server</div>
-	{/if}
-	<label for="username_input">Username</label>
-	<div class="mt-3 mb-3 input-group">
-		<input
-			bind:this={usernameInput}
-			on:keypress={(event) => {
-				if (event.key === 'Enter') {
-					onSetUsername();
-				}
-			}}
-			type="text"
-			class="form-control"
-		/>
-		<button id="username_input" on:click={onSetUsername} type="button" class="btn btn-primary"
-			>Set</button
-		>
-	</div>
-	{#if username !== null}
-		<div class="chat-messages-container">
-			<div class="list-group">
-				{#each chats as chat}
-					<div class="list-group-item">{chat}</div>
-				{/each}
-			</div>
-		</div>
-		<div class="mt-3 input-group">
+<div class="row">
+	<div class="col-lg-9">
+		<div class="mb-3 input-group">
 			<input
 				on:keypress={(event) => {
 					if (event.key === 'Enter') {
-						onMessageSend();
+						onPlayUrl();
 					}
 				}}
-				bind:this={messageInput}
-				type="text"
-				placeholder="Type Message"
+				id="vid_url"
+				type="url"
 				class="form-control"
+				placeholder="URL"
 			/>
-			<button on:click={onMessageSend} type="button" class="btn btn-primary">Send</button>
+			<button on:click={onPlayUrl} type="button" class="btn btn-danger">Play</button>
 		</div>
-	{/if}
+		<vm-player>
+			<vm-youtube video-id={data.videoId} />
+			<vm-default-ui />
+		</vm-player>
+	</div>
+	<div class="col-lg-3 mt-3 mt-lg-0">
+		<div class="chat-container">
+			{#if socket === undefined}
+				<div class="alert alert-secondary">Connecting to server</div>
+			{/if}
+			<label for="username_input">Username</label>
+			<div class="mt-3 mb-3 input-group">
+				<input
+					bind:this={usernameInput}
+					on:keypress={(event) => {
+						if (event.key === 'Enter') {
+							onSetUsername();
+						}
+					}}
+					type="text"
+					class="form-control"
+				/>
+				<button id="username_input" on:click={onSetUsername} type="button" class="btn btn-primary"
+					>Set</button
+				>
+			</div>
+			{#if username !== null}
+				<div class="chat-messages-container">
+					<div class="list-group">
+						{#each chats as chat}
+							<div style="word-wrap:break-word" class="list-group-item">{chat}</div>
+						{/each}
+					</div>
+				</div>
+				<div class="mt-3 input-group">
+					<input
+						on:keypress={(event) => {
+							if (event.key === 'Enter') {
+								onMessageSend();
+							}
+						}}
+						bind:this={messageInput}
+						type="text"
+						placeholder="Type Message"
+						class="form-control"
+					/>
+					<button on:click={onMessageSend} type="button" class="btn btn-primary">Send</button>
+				</div>
+			{/if}
+		</div>
+	</div>
 </div>
 
 <style>
@@ -120,9 +177,5 @@
 		flex-direction: column-reverse;
 		overflow: scroll;
 		height: 500px;
-	}
-
-	.chat-container {
-		width: 50%;
 	}
 </style>

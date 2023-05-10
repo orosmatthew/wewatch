@@ -11,6 +11,7 @@ model Room {
   id        String    @id @unique
   createdAt DateTime  @default(now())
   messages  Message[]
+  videoId   String
 }
 
 model Message {

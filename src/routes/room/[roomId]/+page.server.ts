@@ -10,6 +10,7 @@ export const load = (async ({ params }) => {
 	}
 	const messages = await db.message.findMany({ where: { roomId: roomId } });
 	return {
+		videoId: room.videoId,
 		messages: messages.map((message) => {
 			return { createdAt: message.createdAt, value: message.value };
 		})
