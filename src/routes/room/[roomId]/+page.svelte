@@ -7,6 +7,7 @@
 	import { page } from '$app/stores';
 	import type { PageData } from './$types';
 	import { onDestroy, onMount } from 'svelte';
+	import { fade } from 'svelte/transition';
 
 	export let data: PageData;
 
@@ -24,12 +25,8 @@
 	let socket: Socket | undefined;
 	let vmPlayer: HTMLVmPlayerElement;
 	if (browser) {
-		username = localStorage.getItem('username');
 		defineCustomElements();
 		socket = io($socketUrl);
-		if ($page.params.roomId) {
-			socket.emit('join', $page.params.roomId);
-		}
 		socket.on('message', (message) => {
 			chats.push(message);
 			chats = chats;
@@ -97,13 +94,22 @@
 		}
 	}
 
-	let usernameInput: HTMLInputElement | undefined;
-	function onSetUsername() {
-		if (!usernameInput) {
+	let modalUsernameError = false;
+	async function onModalUsernameSet() {
+		if (!socket) {
 			return;
 		}
-		username = usernameInput.value;
-		usernameInput.value = '';
+		const input = document.getElementById('modal_username_input') as HTMLInputElement;
+		const res: { success: boolean } = await socket.emitWithAck(
+			'join',
+			$page.params.roomId,
+			input.value
+		);
+		if (res.success !== true) {
+			modalUsernameError = true;
+			return;
+		}
+		username = input.value;
 		localStorage.setItem('username', username);
 	}
 
@@ -112,8 +118,7 @@
 		if (!messageInput || !socket) {
 			return;
 		}
-		const message = `${username}: ${messageInput.value}`;
-		socket.emit('message', { value: message });
+		socket.emit('message', { value: messageInput.value });
 		messageInput.value = '';
 		chats = chats;
 	}
@@ -135,7 +140,7 @@
 			if (event.detail && socket) {
 				socket.emit('pause', { time: vmPlayer.currentTime ?? 0 });
 			} else if (!event.detail && socket) {
-				socket.emit('play', {  time: vmPlayer.currentTime ?? 0 });
+				socket.emit('play', { time: vmPlayer.currentTime ?? 0 });
 			}
 		}) as EventListener);
 		vmPlayer.addEventListener('vmSeeked', () => {
@@ -145,7 +150,7 @@
 		});
 		timeInterval = setInterval(() => {
 			if (socket && vmPlayer.playing) {
-				socket.emit('time', {  time: vmPlayer.currentTime ?? 0 });
+				socket.emit('time', { time: vmPlayer.currentTime ?? 0 });
 			}
 		}, 3000);
 	});
@@ -161,6 +166,32 @@
 	<title>Room</title>
 </svelte:head>
 
+{#if username === null}
+	<div transition:fade={{ duration: 300 }}>
+		<div class="overlay" />
+		<div class="container username-modal">
+			<h2 class="mt-4">Enter a Username</h2>
+			<div class="mt-4 input-group">
+				<input
+					on:keypress={(event) => {
+						if (event.key === 'Enter') {
+							onModalUsernameSet();
+						}
+					}}
+					id="modal_username_input"
+					type="text"
+					placeholder="username"
+					class={`form-control ${modalUsernameError ? 'is-invalid' : ''}`}
+					value={browser ? localStorage.getItem('username') ?? '' : ''}
+				/>
+				<button on:click={onModalUsernameSet} type="button" class="btn btn-success">Set</button>
+			</div>
+			{#if modalUsernameError}
+				<div class="text-danger">Username already taken</div>
+			{/if}
+		</div>
+	</div>
+{/if}
 <div class="row">
 	<div class="col-lg-9">
 		<div class="mb-3 input-group">
@@ -187,22 +218,6 @@
 			{#if socket === undefined}
 				<div class="alert alert-secondary">Connecting to server</div>
 			{/if}
-			<label for="username_input">Username</label>
-			<div class="mt-3 mb-3 input-group">
-				<input
-					bind:this={usernameInput}
-					on:keypress={(event) => {
-						if (event.key === 'Enter') {
-							onSetUsername();
-						}
-					}}
-					type="text"
-					class="form-control"
-				/>
-				<button id="username_input" on:click={onSetUsername} type="button" class="btn btn-primary"
-					>Set</button
-				>
-			</div>
 			{#if username !== null}
 				<div class="chat-messages-container">
 					<div class="list-group">
@@ -235,6 +250,28 @@
 		display: flex;
 		flex-direction: column-reverse;
 		overflow-y: auto;
-		max-height: 500px;
+		max-height: 550px;
+	}
+
+	.overlay {
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		background-color: rgba(0, 0, 0, 0.8);
+		z-index: 51;
+	}
+
+	.username-modal {
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+		width: 400px;
+		height: 180px;
+		background-color: rgb(60, 60, 60);
+		border-radius: 10px;
+		z-index: 52;
 	}
 </style>

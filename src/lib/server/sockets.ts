@@ -3,19 +3,36 @@ import { db } from './prisma';
 
 export function handleSocketsServer(io: Server) {
 	io.on('connection', (socket) => {
-		socket.on('join', async (roomId: string) => {
+		socket.on('join', async (roomId: string, username: string, callback) => {
 			const room = await db.room.findUnique({ where: { id: roomId } });
-			socket.data.roomId = roomId;
-			if (room) {
-				await socket.join(roomId);
-			}
-		});
-		socket.on('message', async (message: { value: string }) => {
-			if (!socket.data.roomId) {
+			if (!room) {
+				callback({
+					success: false
+				});
 				return;
 			}
-			await db.message.create({ data: { value: message.value, roomId: socket.data.roomId } });
-			io.to(socket.data.roomId).emit('message', message.value);
+			try {
+				await db.user.create({ data: { username: username.trim(), roomId: room.id } });
+			} catch {
+				callback({
+					success: false
+				});
+				return;
+			}
+			await socket.join(roomId);
+			socket.data.roomId = roomId;
+			socket.data.username = username.trim();
+			callback({
+				success: true
+			});
+		});
+		socket.on('message', async (message: { value: string }) => {
+			if (!socket.data.roomId || !socket.data.username) {
+				return;
+			}
+			const displayMessage = `${socket.data.username}: ${message.value}`;
+			await db.message.create({ data: { value: displayMessage, roomId: socket.data.roomId } });
+			io.to(socket.data.roomId).emit('message', displayMessage);
 		});
 		socket.on('url', async (data: { videoId: string; time: number | null }) => {
 			if (!socket.data.roomId) {
@@ -75,6 +92,17 @@ export function handleSocketsServer(io: Server) {
 				if (Math.abs(data.time - estimatedVideoTime) > 2) {
 					socket.emit('seek', estimatedVideoTime);
 				}
+			}
+		});
+		socket.on('disconnect', async () => {
+			if (socket.data.roomId && socket.data.username) {
+				try {
+					await db.user.delete({
+						where: {
+							roomId_username: { roomId: socket.data.roomId, username: socket.data.username }
+						}
+					});
+				} catch {}
 			}
 		});
 	});
