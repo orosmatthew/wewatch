@@ -1,7 +1,7 @@
 {
 	"name": "wewatch",
-	"version": "0.0.1",
-	"private": true,
+	"version": "1.0.0",
+	"private": false,
 	"scripts": {
 		"dev": "vite dev",
 		"build": "prisma generate && vite build",
