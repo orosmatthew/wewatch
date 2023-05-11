@@ -18,10 +18,15 @@
 </script>
 
 <div class="container">
-	<header style="font-size: 24px" class="mt-2 d-flex align-items-center justify-content-center">
-		<h1 class="logo">
-			<a href="/"><span>We</span>Watch</a>
-		</h1>
+	<header style="font-size: 24px; position: relative" class="mt-3">
+		<div style="text-align:center">
+			<h1 class="logo">
+				<a href="/"><span>We</span>Watch</a>
+			</h1>
+		</div>
+		<a href="https://github.com/orosmatthew/wewatch" target="_blank" class="gh">
+			<i class="bi bi-github" />
+		</a>
 	</header>
 	<hr />
 	<slot />
@@ -41,5 +46,20 @@
 	}
 	.logo span {
 		color: rgb(38, 198, 157);
+	}
+	.gh,
+	.gh:visited,
+	.gh:active {
+		position: absolute;
+		right: 0%;
+		bottom: 0%;
+		text-decoration: none;
+		color: inherit;
+		transform: scale(1);
+	}
+	.gh:hover {
+		cursor: pointer;
+		transition-duration: 0.1s;
+		transform: scale(1.2);
 	}
 </style>

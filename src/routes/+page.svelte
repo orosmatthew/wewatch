@@ -15,5 +15,6 @@
 {/if}
 
 <form style="text-align:center" method="POST" action="?/create" use:enhance>
+	<p>Watch videos together in sync!</p>
 	<button type="submit" class="btn btn-success">Create Room</button>
 </form>
