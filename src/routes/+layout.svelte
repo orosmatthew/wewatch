@@ -18,10 +18,27 @@
 
 <div class="container">
 	<header style="font-size: 24px" class="mt-2 d-flex align-items-center justify-content-center">
-		<ul class="nav col-12 col-md-auto justify-content-center">
-			<li><a href="/" class="nav-link px-2">Home</a></li>
-		</ul>
+		<h1 class="logo">
+			<a href="/"><span>We</span>Watch</a>
+		</h1>
 	</header>
 	<hr />
 	<slot />
 </div>
+
+<style>
+	.logo {
+		font-weight: bold;
+	}
+	.logo a {
+		text-decoration: none;
+		color: rgb(213, 209, 204);
+	}
+	.logo a:hover a:visited a:active {
+		color: inherit;
+		text-decoration: none;
+	}
+	.logo span {
+		color: rgb(38, 198, 157);
+	}
+</style>

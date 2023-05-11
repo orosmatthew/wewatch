@@ -10,12 +10,10 @@
 	<title>WeWatch</title>
 </svelte:head>
 
-<h1>WeWatch</h1>
-
 {#if form && !form.success}
 	<div class="alert alert-danger">{form.message ?? 'Unknown error'}</div>
 {/if}
 
-<form method="POST" action="?/create" use:enhance>
+<form style="text-align:center" method="POST" action="?/create" use:enhance>
 	<button type="submit" class="btn btn-success">Create Room</button>
 </form>
