@@ -3,24 +3,29 @@ import { db } from './prisma';
 
 export function handleSocketsServer(io: Server) {
 	io.on('connection', (socket) => {
-		socket.on('join', async (roomId: string, username: string, callback) => {
+		socket.on('start', async (roomId: string) => {
 			const room = await db.room.findUnique({ where: { id: roomId } });
-			if (!room || username === '') {
+			if (!room) {
+				return;
+			}
+			await socket.join(roomId);
+			socket.data.roomId = roomId;
+		});
+		socket.on('join', async (username: string, callback) => {
+			if (!socket.data.roomId || username === '') {
 				callback({
 					success: false
 				});
 				return;
 			}
 			try {
-				await db.user.create({ data: { username: username.trim(), roomId: room.id } });
+				await db.user.create({ data: { username: username.trim(), roomId: socket.data.roomId } });
 			} catch {
 				callback({
 					success: false
 				});
 				return;
 			}
-			await socket.join(roomId);
-			socket.data.roomId = roomId;
 			socket.data.username = username.trim();
 			callback({
 				success: true
@@ -99,12 +104,24 @@ export function handleSocketsServer(io: Server) {
 			if (socket.data.roomId && socket.data.username) {
 				io.to(socket.data.roomId).emit('leave', socket.data.username);
 				try {
-					await db.user.delete({
+					const user = await db.user.delete({
 						where: {
 							roomId_username: { roomId: socket.data.roomId, username: socket.data.username }
 						}
 					});
-				} catch {}
+					const room = await db.room.findUnique({
+						where: { id: user.roomId },
+						include: { users: true }
+					});
+					if (room) {
+						if (room.users.length === 0) {
+							await db.message.deleteMany({ where: { roomId: room.id } });
+							await db.room.delete({ where: { id: room.id } });
+						}
+					}
+				} catch (e) {
+					console.error(e);
+				}
 			}
 		});
 	});

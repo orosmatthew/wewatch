@@ -28,6 +28,7 @@
 	if (browser) {
 		defineCustomElements();
 		socket = io($socketUrl);
+		socket.emit('start', $page.params.roomId);
 		data.users.forEach((user) => {
 			users.add(user.username);
 		});
@@ -112,11 +113,7 @@
 			return;
 		}
 		const input = document.getElementById('modal_username_input') as HTMLInputElement;
-		const res: { success: boolean } = await socket.emitWithAck(
-			'join',
-			$page.params.roomId,
-			input.value
-		);
+		const res: { success: boolean } = await socket.emitWithAck('join', input.value);
 		if (res.success !== true) {
 			modalUsernameError = true;
 			return;

@@ -9,7 +9,7 @@ datasource db {
 
 model User {
   username String
-  Room     Room   @relation(fields: [roomId], references: [id])
+  room     Room   @relation(fields: [roomId], references: [id])
   roomId   String
 
   @@unique([roomId, username])

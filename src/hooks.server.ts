@@ -3,6 +3,7 @@ import * as dotenv from 'dotenv';
 import { handleSocketsServer } from '$lib/server/sockets';
 import portfinder from 'portfinder';
 import { dev } from '$app/environment';
+import { db } from '$lib/server/prisma';
 
 dotenv.config();
 
@@ -15,6 +16,9 @@ if (dev) {
 	} else {
 		socketPort = parseInt(process.env.SOCKET_PORT);
 	}
+	await db.user.deleteMany();
+	await db.message.deleteMany();
+	await db.room.deleteMany();
 }
 
 export function socketUrl(): string {
