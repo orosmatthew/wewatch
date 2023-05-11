@@ -110,31 +110,31 @@
 	onMount(() => {
 		vmPlayer.addEventListener('vmPlay', () => {
 			if (socket) {
-				socket.emit('play', { room: $page.params.roomId });
+				socket.emit('play', { room: $page.params.roomId, time: vmPlayer.currentTime ?? 0 });
 			}
 		});
 		vmPlayer.addEventListener('vmPausedChange', ((event: CustomEvent<boolean>) => {
 			if (event.detail && socket) {
-				socket.emit('pause', { room: $page.params.roomId });
+				socket.emit('pause', { room: $page.params.roomId, time: vmPlayer.currentTime ?? 0 });
 			}
 		}) as EventListener);
 		vmPlayer.addEventListener('vmBufferingChange', ((event: CustomEvent<boolean>) => {
 			if (event.detail && socket) {
-				socket.emit('pause', { room: $page.params.roomId });
+				socket.emit('pause', { room: $page.params.roomId, time: vmPlayer.currentTime ?? 0 });
 			} else if (!event.detail && socket) {
-				socket.emit('play', { room: $page.params.roomId });
+				socket.emit('play', { room: $page.params.roomId, time: vmPlayer.currentTime ?? 0 });
 			}
 		}) as EventListener);
 		vmPlayer.addEventListener('vmSeeked', () => {
 			if (socket) {
-				socket.emit('seek', { room: $page.params.roomId, time: vmPlayer.currentTime });
+				socket.emit('seek', { room: $page.params.roomId, time: vmPlayer.currentTime ?? 0 });
 			}
 		});
 		timeInterval = setInterval(() => {
 			if (socket && vmPlayer.playing) {
-				socket.emit('time', { room: $page.params.roomId, time: vmPlayer.currentTime });
+				socket.emit('time', { room: $page.params.roomId, time: vmPlayer.currentTime ?? 0 });
 			}
-		}, 5000);
+		}, 3000);
 	});
 
 	onDestroy(() => {
