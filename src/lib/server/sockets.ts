@@ -13,9 +13,12 @@ export function handleSocketsServer(io: Server) {
 			await db.message.create({ data: { value: message.value, roomId: message.room } });
 			io.to(message.room).emit('message', message.value);
 		});
-		socket.on('url', async (data: { videoId: string; room: string }) => {
-			await db.room.update({ where: { id: data.room }, data: { videoId: data.videoId } });
-			io.to(data.room).emit('url', data.videoId);
+		socket.on('url', async (data: { videoId: string; room: string; time: number | null }) => {
+			await db.room.update({
+				where: { id: data.room },
+				data: { videoId: data.videoId, playPauseTime: data.time ?? 0 }
+			});
+			io.to(data.room).emit('url', { videoId: data.videoId, time: data.time ?? 0 });
 		});
 		socket.on('play', async (data: { room: string; time: number }) => {
 			socket.broadcast.to(data.room).emit('play');

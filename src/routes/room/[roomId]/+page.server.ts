@@ -13,6 +13,13 @@ export const load = (async ({ params }) => {
 		videoId: room.videoId,
 		messages: messages.map((message) => {
 			return { createdAt: message.createdAt, value: message.value };
-		})
+		}),
+		videoTime: (() => {
+			if (room.isPlaying && room.playPauseAt) {
+				return room.playPauseTime + (new Date().valueOf() - room.playPauseAt.valueOf()) / 1000;
+			} else {
+				return room.playPauseTime;
+			}
+		})()
 	};
 }) satisfies PageServerLoad;

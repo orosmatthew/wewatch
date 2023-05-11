@@ -34,8 +34,8 @@
 			chats.push(message);
 			chats = chats;
 		});
-		socket.on('url', (videoId: string) => {
-			playYoutube(videoId);
+		socket.on('url', (data: { videoId: string; time: number }) => {
+			playYoutube(data.videoId, data.time);
 		});
 		socket.on('play', () => {
 			vmPlayer.play();
@@ -48,13 +48,20 @@
 		});
 	}
 
-	function playYoutube(id: string) {
+	function playYoutube(id: string, time: number) {
 		const vmPlayer = document.querySelector('vm-player') as HTMLVmPlayerElement;
 		const vmYoutube = document.querySelector('vm-youtube') as HTMLVmYoutubeElement;
 		vmPlayer.removeChild(vmYoutube);
 		const newVmYoutube = document.createElement('vm-youtube');
 		newVmYoutube.videoId = id;
 		vmPlayer.appendChild(newVmYoutube);
+		vmPlayer.addEventListener(
+			'vmPlaybackReady',
+			() => {
+				vmPlayer.currentTime = time;
+			},
+			{ once: true }
+		);
 	}
 
 	function onPlayUrl() {
@@ -70,16 +77,21 @@
 		) {
 			const params = new URLSearchParams(url.search);
 			const videoId = params.get('v');
+			const videoTimeStr = params.get('t');
+			const videoTime = videoTimeStr ? parseInt(videoTimeStr) : null;
 			if (videoId !== null) {
 				if (socket) {
-					socket.emit('url', { videoId: videoId, room: $page.params.roomId });
+					socket.emit('url', { videoId: videoId, room: $page.params.roomId, time: videoTime });
 				}
 			}
 		} else if (url.hostname === 'youtu.be') {
 			const videoId = url.toString().split('/').pop()?.split('?').at(0);
+			const params = new URLSearchParams(url.search);
+			const videoTimeStr = params.get('t');
+			const videoTime = videoTimeStr ? parseInt(videoTimeStr) : null;
 			if (videoId !== undefined) {
 				if (socket) {
-					socket.emit('url', { videoId: videoId, room: $page.params.roomId });
+					socket.emit('url', { videoId: videoId, room: $page.params.roomId, time: videoTime });
 				}
 			}
 		}
@@ -108,6 +120,7 @@
 
 	let timeInterval: ReturnType<typeof setInterval>;
 	onMount(() => {
+		vmPlayer.currentTime = data.videoTime;
 		vmPlayer.addEventListener('vmPlay', () => {
 			if (socket) {
 				socket.emit('play', { room: $page.params.roomId, time: vmPlayer.currentTime ?? 0 });
