@@ -81,7 +81,7 @@
 			const videoTime = videoTimeStr ? parseInt(videoTimeStr) : null;
 			if (videoId !== null) {
 				if (socket) {
-					socket.emit('url', { videoId: videoId, room: $page.params.roomId, time: videoTime });
+					socket.emit('url', { videoId: videoId, time: videoTime });
 				}
 			}
 		} else if (url.hostname === 'youtu.be') {
@@ -91,7 +91,7 @@
 			const videoTime = videoTimeStr ? parseInt(videoTimeStr) : null;
 			if (videoId !== undefined) {
 				if (socket) {
-					socket.emit('url', { videoId: videoId, room: $page.params.roomId, time: videoTime });
+					socket.emit('url', { videoId: videoId, time: videoTime });
 				}
 			}
 		}
@@ -113,7 +113,7 @@
 			return;
 		}
 		const message = `${username}: ${messageInput.value}`;
-		socket.emit('message', { room: $page.params.roomId, value: message });
+		socket.emit('message', { value: message });
 		messageInput.value = '';
 		chats = chats;
 	}
@@ -123,29 +123,29 @@
 		vmPlayer.currentTime = data.videoTime;
 		vmPlayer.addEventListener('vmPlay', () => {
 			if (socket) {
-				socket.emit('play', { room: $page.params.roomId, time: vmPlayer.currentTime ?? 0 });
+				socket.emit('play', { time: vmPlayer.currentTime ?? 0 });
 			}
 		});
 		vmPlayer.addEventListener('vmPausedChange', ((event: CustomEvent<boolean>) => {
 			if (event.detail && socket) {
-				socket.emit('pause', { room: $page.params.roomId, time: vmPlayer.currentTime ?? 0 });
+				socket.emit('pause', { time: vmPlayer.currentTime ?? 0 });
 			}
 		}) as EventListener);
 		vmPlayer.addEventListener('vmBufferingChange', ((event: CustomEvent<boolean>) => {
 			if (event.detail && socket) {
-				socket.emit('pause', { room: $page.params.roomId, time: vmPlayer.currentTime ?? 0 });
+				socket.emit('pause', { time: vmPlayer.currentTime ?? 0 });
 			} else if (!event.detail && socket) {
-				socket.emit('play', { room: $page.params.roomId, time: vmPlayer.currentTime ?? 0 });
+				socket.emit('play', {  time: vmPlayer.currentTime ?? 0 });
 			}
 		}) as EventListener);
 		vmPlayer.addEventListener('vmSeeked', () => {
 			if (socket) {
-				socket.emit('seek', { room: $page.params.roomId, time: vmPlayer.currentTime ?? 0 });
+				socket.emit('seek', { time: vmPlayer.currentTime ?? 0 });
 			}
 		});
 		timeInterval = setInterval(() => {
 			if (socket && vmPlayer.playing) {
-				socket.emit('time', { room: $page.params.roomId, time: vmPlayer.currentTime ?? 0 });
+				socket.emit('time', {  time: vmPlayer.currentTime ?? 0 });
 			}
 		}, 3000);
 	});
