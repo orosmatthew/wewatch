@@ -12,6 +12,7 @@
 	export let data: PageData;
 
 	let chats: string[] = [];
+	let users: Set<string> = new Set();
 
 	data.messages
 		.sort((a, b) => {
@@ -27,6 +28,9 @@
 	if (browser) {
 		defineCustomElements();
 		socket = io($socketUrl);
+		data.users.forEach((user) => {
+			users.add(user.username);
+		});
 		socket.on('message', (message) => {
 			chats.push(message);
 			chats = chats;
@@ -42,6 +46,14 @@
 		});
 		socket.on('seek', (time) => {
 			vmPlayer.currentTime = time;
+		});
+		socket.on('join', (name) => {
+			users.add(name);
+			users = users;
+		});
+		socket.on('leave', (name) => {
+			users.delete(name);
+			users = users;
 		});
 	}
 
@@ -212,6 +224,12 @@
 			<vm-youtube video-id={data.videoId} />
 			<vm-default-ui />
 		</vm-player>
+		<h3 class="mt-3">Users</h3>
+		<div class="mt-2 row">
+			{#each [...users] as user}
+				<div transition:fade={{ duration: 300 }} class="user">{user}</div>
+			{/each}
+		</div>
 	</div>
 	<div class="col-lg-3 mt-3 mt-lg-0">
 		<div class="chat-container">
@@ -273,5 +291,14 @@
 		background-color: rgb(60, 60, 60);
 		border-radius: 10px;
 		z-index: 52;
+	}
+	.user {
+		width: fit-content;
+		font-size: 18px;
+		border-radius: 5px;
+		color: rgb(34, 34, 34);
+		background-color: rgb(38, 198, 157);
+		padding: 5px;
+		margin: 4px;
 	}
 </style>

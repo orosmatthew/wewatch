@@ -4,7 +4,7 @@ import type { PageServerLoad } from './$types';
 
 export const load = (async ({ params }) => {
 	const roomId = params.roomId;
-	const room = await db.room.findUnique({ where: { id: roomId } });
+	const room = await db.room.findUnique({ where: { id: roomId }, include: { users: true } });
 	if (!room) {
 		throw redirect(302, '/');
 	}
@@ -20,6 +20,9 @@ export const load = (async ({ params }) => {
 			} else {
 				return room.playPauseTime;
 			}
-		})()
+		})(),
+		users: room.users.map((user) => {
+			return { username: user.username };
+		})
 	};
 }) satisfies PageServerLoad;

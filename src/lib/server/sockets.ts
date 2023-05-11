@@ -25,6 +25,7 @@ export function handleSocketsServer(io: Server) {
 			callback({
 				success: true
 			});
+			io.to(socket.data.roomId).emit('join', username.trim());
 		});
 		socket.on('message', async (message: { value: string }) => {
 			if (!socket.data.roomId || !socket.data.username) {
@@ -96,6 +97,7 @@ export function handleSocketsServer(io: Server) {
 		});
 		socket.on('disconnect', async () => {
 			if (socket.data.roomId && socket.data.username) {
+				io.to(socket.data.roomId).emit('leave', socket.data.username);
 				try {
 					await db.user.delete({
 						where: {
