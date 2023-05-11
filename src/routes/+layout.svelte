@@ -4,6 +4,7 @@
 
 <script lang="ts">
 	import 'bootstrap-dark-5/dist/css/bootstrap-dark.css';
+	import 'bootstrap-icons/font/bootstrap-icons.min.css';
 	import { onMount } from 'svelte';
 	import { writable } from 'svelte/store';
 	import type { LayoutData } from './$types';

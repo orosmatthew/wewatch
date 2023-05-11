@@ -172,11 +172,15 @@
 	});
 </script>
 
-<h1>Room</h1>
-
 <svelte:head>
 	<title>Room</title>
 </svelte:head>
+
+<div class="row">
+	<div class="col-lg-9">
+		<h1>Room</h1>
+	</div>
+</div>
 
 {#if username === null}
 	<div transition:fade={{ duration: 300 }}>
@@ -204,9 +208,9 @@
 		</div>
 	</div>
 {/if}
-<div class="row">
-	<div class="col-lg-9">
-		<div class="mb-3 input-group">
+<div class="row mb-3">
+	<div class="col-lg-9 mb-3 mb-lg-0">
+		<div class="input-group">
 			<input
 				on:keypress={(event) => {
 					if (event.key === 'Enter') {
@@ -218,14 +222,32 @@
 				class="form-control"
 				placeholder="URL"
 			/>
-			<button on:click={onPlayUrl} type="button" class="btn btn-danger">Play</button>
+			<button on:click={onPlayUrl} type="button" class="btn btn-danger"
+				><i class="bi bi-play-btn" /></button
+			>
 		</div>
+	</div>
+	<div class="col-lg-3 text-end">
+		<div class="input-group">
+			<input disabled class="form-control" value={$page.url.toString()} />
+			<button
+				on:click={() => {
+					navigator.clipboard.writeText($page.url.toString());
+				}}
+				type="button"
+				class="btn btn-outline-success"><i class="bi bi-share" /></button
+			>
+		</div>
+	</div>
+</div>
+<div class="row">
+	<div class="col-lg-9">
 		<vm-player bind:this={vmPlayer}>
 			<vm-youtube video-id={data.videoId} />
 			<vm-default-ui />
 		</vm-player>
 		<h3 class="mt-3">Users</h3>
-		<div class="mt-2 row">
+		<div style="margin-left:0" class="ml-3 mt-2 row">
 			{#each [...users] as user}
 				<div transition:fade={{ duration: 300 }} class="user">{user}</div>
 			{/each}
@@ -236,29 +258,30 @@
 			{#if socket === undefined}
 				<div class="alert alert-secondary">Connecting to server</div>
 			{/if}
-			{#if username !== null}
-				<div class="chat-messages-container">
-					<div class="list-group">
-						{#each chats as chat}
-							<div style="word-wrap:break-word" class="list-group-item">{chat}</div>
-						{/each}
-					</div>
+
+			<div class="chat-messages-container">
+				<div class="list-group">
+					{#each chats as chat}
+						<div style="word-wrap:break-word" class="list-group-item">{chat}</div>
+					{/each}
 				</div>
-				<div class="mt-3 input-group">
-					<input
-						on:keypress={(event) => {
-							if (event.key === 'Enter') {
-								onMessageSend();
-							}
-						}}
-						bind:this={messageInput}
-						type="text"
-						placeholder="Type Message"
-						class="form-control"
-					/>
-					<button on:click={onMessageSend} type="button" class="btn btn-primary">Send</button>
-				</div>
-			{/if}
+			</div>
+			<div class="mt-3 input-group">
+				<input
+					on:keypress={(event) => {
+						if (event.key === 'Enter') {
+							onMessageSend();
+						}
+					}}
+					bind:this={messageInput}
+					type="text"
+					placeholder="Type Message"
+					class="form-control"
+				/>
+				<button on:click={onMessageSend} type="button" class="btn btn-primary"
+					><i class="bi bi-send" /></button
+				>
+			</div>
 		</div>
 	</div>
 </div>
