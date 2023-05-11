@@ -221,7 +221,7 @@
 	.chat-messages-container {
 		display: flex;
 		flex-direction: column-reverse;
-		overflow: scroll;
+		overflow-y: auto;
 		height: 500px;
 	}
 </style>
