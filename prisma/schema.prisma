@@ -8,10 +8,13 @@ datasource db {
 }
 
 model Room {
-  id        String    @id @unique
-  createdAt DateTime  @default(now())
-  messages  Message[]
-  videoId   String
+  id             String    @id @unique
+  createdAt      DateTime  @default(now())
+  messages       Message[]
+  videoId        String
+  isPlaying      Boolean   @default(false)
+  timeSeconds    Int       @default(0)
+  startedPlaying DateTime?
 }
 
 model Message {

@@ -6,6 +6,7 @@
 	import '@vime/core/themes/default.css';
 	import { page } from '$app/stores';
 	import type { PageData } from './$types';
+	import { onDestroy, onMount } from 'svelte';
 
 	export let data: PageData;
 
@@ -21,6 +22,7 @@
 
 	let username: string | null = null;
 	let socket: Socket | undefined;
+	let vmPlayer: HTMLVmPlayerElement;
 	if (browser) {
 		username = localStorage.getItem('username');
 		defineCustomElements();
@@ -28,12 +30,21 @@
 		if ($page.params.roomId) {
 			socket.emit('join', $page.params.roomId);
 		}
-		socket.on('recvMessage', (message) => {
+		socket.on('message', (message) => {
 			chats.push(message);
 			chats = chats;
 		});
-		socket.on('play', (videoId: string) => {
+		socket.on('url', (videoId: string) => {
 			playYoutube(videoId);
+		});
+		socket.on('play', () => {
+			vmPlayer.play();
+		});
+		socket.on('pause', () => {
+			vmPlayer.pause();
+		});
+		socket.on('seek', (time) => {
+			vmPlayer.currentTime = time;
 		});
 	}
 
@@ -61,14 +72,14 @@
 			const videoId = params.get('v');
 			if (videoId !== null) {
 				if (socket) {
-					socket.emit('play', { videoId: videoId, room: $page.params.roomId });
+					socket.emit('url', { videoId: videoId, room: $page.params.roomId });
 				}
 			}
 		} else if (url.hostname === 'youtu.be') {
 			const videoId = url.toString().split('/').pop()?.split('?').at(0);
 			if (videoId !== undefined) {
 				if (socket) {
-					socket.emit('play', { videoId: videoId, room: $page.params.roomId });
+					socket.emit('url', { videoId: videoId, room: $page.params.roomId });
 				}
 			}
 		}
@@ -90,10 +101,45 @@
 			return;
 		}
 		const message = `${username}: ${messageInput.value}`;
-		socket.emit('sendMessage', { room: $page.params.roomId, value: message });
+		socket.emit('message', { room: $page.params.roomId, value: message });
 		messageInput.value = '';
 		chats = chats;
 	}
+
+	let timeInterval: ReturnType<typeof setInterval>;
+	onMount(() => {
+		vmPlayer.addEventListener('vmPlay', () => {
+			if (socket) {
+				socket.emit('play', { room: $page.params.roomId });
+			}
+		});
+		vmPlayer.addEventListener('vmPausedChange', ((event: CustomEvent<boolean>) => {
+			if (event.detail && socket) {
+				socket.emit('pause', { room: $page.params.roomId });
+			}
+		}) as EventListener);
+		vmPlayer.addEventListener('vmBufferingChange', ((event: CustomEvent<boolean>) => {
+			if (event.detail && socket) {
+				socket.emit('pause', { room: $page.params.roomId });
+			} else if (!event.detail && socket) {
+				socket.emit('play', { room: $page.params.roomId });
+			}
+		}) as EventListener);
+		vmPlayer.addEventListener('vmSeeked', () => {
+			if (socket) {
+				socket.emit('seek', { room: $page.params.roomId, time: vmPlayer.currentTime });
+			}
+		});
+		timeInterval = setInterval(() => {
+			if (socket && vmPlayer.playing) {
+				socket.emit('time', { room: $page.params.roomId, time: vmPlayer.currentTime });
+			}
+		}, 5000);
+	});
+
+	onDestroy(() => {
+		clearInterval(timeInterval);
+	});
 </script>
 
 <h1>Room</h1>
@@ -118,7 +164,7 @@
 			/>
 			<button on:click={onPlayUrl} type="button" class="btn btn-danger">Play</button>
 		</div>
-		<vm-player>
+		<vm-player bind:this={vmPlayer}>
 			<vm-youtube video-id={data.videoId} />
 			<vm-default-ui />
 		</vm-player>
