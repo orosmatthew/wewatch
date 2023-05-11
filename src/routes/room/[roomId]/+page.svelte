@@ -222,6 +222,6 @@
 		display: flex;
 		flex-direction: column-reverse;
 		overflow-y: auto;
-		height: 500px;
+		max-height: 500px;
 	}
 </style>
