@@ -169,6 +169,9 @@
 
 	onDestroy(() => {
 		clearInterval(timeInterval);
+		if (socket) {
+			socket.close();
+		}
 	});
 </script>
 
