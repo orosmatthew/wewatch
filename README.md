@@ -16,7 +16,7 @@ WeWatch allows watching videos together in sync
  - 📽️ Watch YouTube videos in sync
  - 💬 Send messages
  - 👷 Able to be self-hosted
- - 🐳 Docker image
+ - 🐳 [Docker image](https://hub.docker.com/r/orosmatthew/wewatch)
 
 ## Tech Stack
 
