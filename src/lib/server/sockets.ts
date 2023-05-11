@@ -5,7 +5,7 @@ export function handleSocketsServer(io: Server) {
 	io.on('connection', (socket) => {
 		socket.on('join', async (roomId: string, username: string, callback) => {
 			const room = await db.room.findUnique({ where: { id: roomId } });
-			if (!room) {
+			if (!room || username === '') {
 				callback({
 					success: false
 				});
