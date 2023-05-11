@@ -1,0 +1,26 @@
+version: '3'
+services:
+  db:
+    image: postgres
+    environment:
+      POSTGRES_USER: wewatch_user
+      # Recommended: Change this
+      POSTGRES_PASSWORD: password123
+      POSTGRES_DB: wewatch_db
+  wewatch:
+    # If using image uncomment and then remove build:
+    # image: orosmatthew/wewatch
+    build: .
+    depends_on:
+      - db
+    environment:
+      - DATABASE_URL=postgres://wewatch_user:password123@db:5432/wewatch_db
+      # Change according to domain name hosted on
+      - ORIGIN=http://localhost:3000
+      # Change according to domain name websockets hosted on
+      - SOCKET_URL=http://localhost:3001
+    ports:
+      # Main web port
+      - '3000:3000'
+      # Websockets port
+      - '3001:3001'

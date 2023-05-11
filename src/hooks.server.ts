@@ -16,9 +16,11 @@ if (dev) {
 	} else {
 		socketPort = parseInt(process.env.SOCKET_PORT);
 	}
-	await db.user.deleteMany();
-	await db.message.deleteMany();
-	await db.room.deleteMany();
+	if (process.env.DATABASE_URL) {
+		await db.user.deleteMany();
+		await db.message.deleteMany();
+		await db.room.deleteMany();
+	}
 }
 
 export function socketUrl(): string {
@@ -26,7 +28,7 @@ export function socketUrl(): string {
 		return `ws://localhost:${socketPort}`;
 	} else {
 		if (!process.env.SOCKET_URL) {
-			throw Error('SOCKET_URL not defiend in env');
+			return `ws://localhost:${socketPort}`;
 		} else {
 			return process.env.SOCKET_URL;
 		}
