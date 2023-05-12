@@ -7,7 +7,7 @@
 
 WeWatch allows watching videos together in sync
 
-## [Try it here!](https://wewatch.pixeled.site)
+## [Try it here!](https://wewatch.click)
 
 ![Screenshot](https://raw.githubusercontent.com/orosmatthew/wewatch/master/github/screenshot.png)
 
