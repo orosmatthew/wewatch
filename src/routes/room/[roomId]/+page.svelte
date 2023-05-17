@@ -132,6 +132,7 @@
 		chats = chats;
 	}
 
+	let videoTitle: string | undefined;
 	let timeInterval: ReturnType<typeof setInterval>;
 	onMount(() => {
 		vmPlayer.currentTime = data.videoTime;
@@ -161,6 +162,7 @@
 			if (socket && vmPlayer.playing) {
 				socket.emit('time', { time: vmPlayer.currentTime ?? 0 });
 			}
+			videoTitle = vmPlayer?.mediaTitle;
 		}, 3000);
 	});
 
@@ -173,12 +175,12 @@
 </script>
 
 <svelte:head>
-	<title>Room</title>
+	<title>{videoTitle ? `${videoTitle} - WeWatch` : 'WeWatch'}</title>
 </svelte:head>
 
 <div class="row">
 	<div class="col-lg-9">
-		<h1>Room</h1>
+		<h1>{videoTitle ?? 'Room'}</h1>
 	</div>
 </div>
 
