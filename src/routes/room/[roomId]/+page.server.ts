@@ -8,11 +8,17 @@ export const load = (async ({ params }) => {
 	if (!room) {
 		throw redirect(302, '/');
 	}
-	const messages = await db.message.findMany({ where: { roomId: roomId } });
+	const messages = await db.message.findMany({
+		where: { roomId: roomId }
+	});
 	return {
 		videoId: room.videoId,
 		messages: messages.map((message) => {
-			return { createdAt: message.createdAt, value: message.value };
+			return {
+				createdAt: message.createdAt,
+				username: message.username,
+				value: message.value
+			};
 		}),
 		videoTime: (() => {
 			if (room.isPlaying && room.playPauseAt) {

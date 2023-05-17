@@ -11,7 +11,7 @@
 
 	export let data: PageData;
 
-	let chats: string[] = [];
+	let chats: { username: string; value: string }[] = [];
 	let users: Set<string> = new Set();
 
 	data.messages
@@ -19,7 +19,7 @@
 			return a.createdAt.valueOf() - b.createdAt.valueOf();
 		})
 		.forEach((message) => {
-			chats.push(message.value);
+			chats.push({ username: message.username, value: message.value });
 		});
 
 	let username: string | null = null;
@@ -32,7 +32,7 @@
 		data.users.forEach((user) => {
 			users.add(user.username);
 		});
-		socket.on('message', (message) => {
+		socket.on('message', (message: { username: string; value: string }) => {
 			chats.push(message);
 			chats = chats;
 		});
@@ -124,10 +124,10 @@
 
 	let messageInput: HTMLInputElement | undefined;
 	async function onMessageSend() {
-		if (!messageInput || !socket) {
+		if (!messageInput || !socket || !username) {
 			return;
 		}
-		socket.emit('message', { value: messageInput.value });
+		socket.emit('message', { username: username, value: messageInput.value });
 		messageInput.value = '';
 		chats = chats;
 	}
@@ -237,7 +237,7 @@
 				id="vid_url"
 				type="url"
 				class="form-control"
-				placeholder="URL"
+				placeholder="YouTube URL"
 			/>
 			<button on:click={onPlayUrl} type="button" class="btn btn-danger"
 				><i class="bi bi-play-btn" /></button
@@ -285,7 +285,10 @@
 			<div class="chat-messages-container">
 				<div class="list-group">
 					{#each chats as chat}
-						<div style="word-wrap:break-word" class="list-group-item">{chat}</div>
+						<div style="word-wrap:break-word" class="list-group-item">
+							<span style="color:rgb(33, 37, 41)" class="badge bg-secondary">{chat.username}</span>
+							{chat.value}
+						</div>
 					{/each}
 				</div>
 			</div>

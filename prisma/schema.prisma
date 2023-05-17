@@ -8,6 +8,7 @@ datasource db {
 }
 
 model User {
+  id       BigInt @id @default(autoincrement())
   username String
   room     Room   @relation(fields: [roomId], references: [id])
   roomId   String
@@ -32,4 +33,5 @@ model Message {
   value     String
   room      Room     @relation(fields: [roomId], references: [id])
   roomId    String
+  username  String
 }

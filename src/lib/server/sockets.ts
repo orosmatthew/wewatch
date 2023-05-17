@@ -32,13 +32,17 @@ export function handleSocketsServer(io: Server) {
 			});
 			io.to(socket.data.roomId).emit('join', username.trim());
 		});
-		socket.on('message', async (message: { value: string }) => {
+		socket.on('message', async (message: { username: string; value: string }) => {
 			if (!socket.data.roomId || !socket.data.username) {
 				return;
 			}
-			const displayMessage = `${socket.data.username}: ${message.value}`;
-			await db.message.create({ data: { value: displayMessage, roomId: socket.data.roomId } });
-			io.to(socket.data.roomId).emit('message', displayMessage);
+			await db.message.create({
+				data: { username: message.username, value: message.value, roomId: socket.data.roomId }
+			});
+			io.to(socket.data.roomId).emit('message', {
+				username: message.username,
+				value: message.value
+			});
 		});
 		socket.on('url', async (data: { videoId: string; time: number | null }) => {
 			if (!socket.data.roomId) {
