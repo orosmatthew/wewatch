@@ -175,7 +175,7 @@
 		});
 		timeInterval = setInterval(() => {
 			if (socket && vmPlayer.playing) {
-				socket.emit('time', { time: vmPlayer.currentTime ?? 0 });
+				socket.emit('time', { time: vmPlayer.currentTime ?? 0, isPlaying: vmPlayer.playing });
 			}
 			videoTitle = vmPlayer?.mediaTitle;
 		}, 3000);

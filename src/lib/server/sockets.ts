@@ -84,7 +84,7 @@ export function handleSocketsServer(io: Server) {
 				data: { playPauseTime: Math.round(data.time), playPauseAt: new Date() }
 			});
 		});
-		socket.on('time', async (data: { time: number }) => {
+		socket.on('time', async (data: { time: number; isPlaying: boolean }) => {
 			if (!socket.data.roomId) {
 				return;
 			}
@@ -93,6 +93,11 @@ export function handleSocketsServer(io: Server) {
 			});
 			if (!room) {
 				return;
+			}
+			if (room.isPlaying && !data.isPlaying) {
+				socket.emit('play');
+			} else if (!room.isPlaying && data.isPlaying) {
+				socket.emit('pause');
 			}
 			if (room.isPlaying === false) {
 				socket.emit('seek', room.playPauseTime);
