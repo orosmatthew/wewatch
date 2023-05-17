@@ -134,7 +134,22 @@
 
 	let videoTitle: string | undefined;
 	let timeInterval: ReturnType<typeof setInterval>;
-	onMount(() => {
+	onMount(async () => {
+		const bootstrap = await import('bootstrap');
+		const popoverTriggerList = document.querySelectorAll('[data-bs-toggle="popover"]');
+		[...popoverTriggerList].map((popoverTriggerEl) => new bootstrap.Popover(popoverTriggerEl));
+
+		popoverTriggerList.forEach((popover) => {
+			popover.addEventListener('shown.bs.popover', () => {
+				setTimeout(() => {
+					const bsPopover = bootstrap.Popover.getInstance(popover);
+					if (bsPopover) {
+						bsPopover.hide();
+					}
+				}, 1500);
+			});
+		});
+
 		vmPlayer.currentTime = data.videoTime;
 		vmPlayer.addEventListener('vmPlay', () => {
 			if (socket) {
@@ -184,7 +199,7 @@
 	</div>
 </div>
 
-{#if username === null}
+{#if username !== null}
 	<div transition:fade={{ duration: 300 }}>
 		<div class="overlay" />
 		<div class="container username-modal">
@@ -231,13 +246,19 @@
 	</div>
 	<div class="col-lg-3 text-end">
 		<div class="input-group">
-			<input disabled class="form-control" value={$page.url.toString()} />
+			<input readonly class="form-control" value={$page.url.toString()} />
 			<button
 				on:click={() => {
 					navigator.clipboard.writeText($page.url.toString());
 				}}
 				type="button"
-				class="btn btn-outline-success"><i class="bi bi-share" /></button
+				class="btn btn-outline-success"
+				data-bs-trigger="click"
+				data-bs-delay={'{"show":0,"hide":1}'}
+				data-bs-container="body"
+				data-bs-toggle="popover"
+				data-bs-placement="top"
+				data-bs-content="Copied!"><i class="bi bi-share" /></button
 			>
 		</div>
 	</div>
