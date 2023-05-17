@@ -13,23 +13,24 @@ WeWatch allows watching videos together in sync
 
 ## Features
 
- - 📽️ Watch YouTube videos in sync
- - 💬 Send messages
- - 👷 Able to be self-hosted
- - 🐳 [Docker image](https://hub.docker.com/r/orosmatthew/wewatch)
+- 📽️ Watch YouTube videos in sync
+- 💬 Send messages
+- 👷 Able to be self-hosted
+- 🐳 [Docker image](https://hub.docker.com/r/orosmatthew/wewatch)
 
 ## Tech Stack
 
- - 🏗️ SvelteKit framework
- - 🕸️ Websockets via [socket.io](https://socket.io/)
- - 📺 [VimeJS](https://vimejs.com/) video player
- - 📝 [Prisma](https://www.prisma.io/) ORM
+- 🏗️ SvelteKit framework
+- 🕸️ Websockets via [socket.io](https://socket.io/)
+- 📺 [VimeJS](https://vimejs.com/) video player
+- 📝 [Prisma](https://www.prisma.io/) ORM
 
 ## Get Started
 
 ### Docker (recommended)
 
 Create `docker-compose.yml`
+
 ```yml
 version: '3'
 services:
@@ -56,6 +57,7 @@ services:
       # Websockets port
       - '3001:3001'
 ```
+
 Run command to start
 
 ```console
