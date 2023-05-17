@@ -199,7 +199,7 @@
 	</div>
 </div>
 
-{#if username !== null}
+{#if username === null}
 	<div transition:fade={{ duration: 300 }}>
 		<div class="overlay" />
 		<div class="container username-modal">
@@ -334,7 +334,7 @@
 		transform: translate(-50%, -50%);
 		width: 400px;
 		height: 180px;
-		background-color: rgb(60, 60, 60);
+		background-color: rgb(49, 55, 62);
 		border-radius: 10px;
 		z-index: 52;
 	}
