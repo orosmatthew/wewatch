@@ -15,8 +15,6 @@ steps:
         from_secret: registry_username
       password:
         from_secret: registry_password
-    commands:
-      - docker build -t wewatch .
     
   # - name: run
   #   image: wewatch
