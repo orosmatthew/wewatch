@@ -5,9 +5,10 @@ name: build-and-run
 
 steps:
   - name: build
-    image: docker
-    commands:
-      - docker build -t wewatch .
+    image: plugins/docker
+    volumes:
+      - name: dockersock
+        path: "/var/run/docker.sock"
     
   - name: run
     image: wewatch
