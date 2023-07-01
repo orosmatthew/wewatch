@@ -3,14 +3,22 @@ kind: pipeline
 type: docker
 name: build-and-run
 
+
 steps:
   - name: build
     image: plugins/docker
-    volumes:
-      - name: dockersock
-        path: "/var/run/docker.sock"
-    
-  - name: run
-    image: wewatch
+    settings:
+      registry: https://registry.pixeled.site
+      repo: orosmatthew/wewatch
+      tags: latest
+      username:
+        from_secret: registry_username
+      password:
+        from_secret: registry_password
     commands:
-      - docker run -d --name wewatch wewatch
+      - docker build -t wewatch .
+    
+  # - name: run
+  #   image: wewatch
+  #   commands:
+  #     - docker run -d --name wewatch orosmatthew/wewatch
