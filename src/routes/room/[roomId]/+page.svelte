@@ -200,7 +200,7 @@
 </div>
 
 {#if username === null}
-	<div transition:fade={{ duration: 300 }}>
+	<div transition:fade|global={{ duration: 300 }}>
 		<div class="overlay" />
 		<div class="container username-modal">
 			<h2 class="mt-4">Enter a Username</h2>
